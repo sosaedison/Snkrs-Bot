@@ -16,28 +16,26 @@ from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support import expected_conditions as EC
 
-logging.config.dictConfig({
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {
-            "format":
-            "%(asctime)s [PID %(process)d] [Thread %(thread)d] [%(levelname)s] [%(name)s] %(message)s"
-        }
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "level": "INFO",
-            "formatter": "default",
-            "stream": "ext://sys.stdout",
-        }
-    },
-    "root": {
-        "level": "INFO",
-        "handlers": ["console"]
-    },
-})
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s [PID %(process)d] [Thread %(thread)d] [%(levelname)s] [%(name)s] %(message)s"
+            }
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "INFO",
+                "formatter": "default",
+                "stream": "ext://sys.stdout",
+            }
+        },
+        "root": {"level": "INFO", "handlers": ["console"]},
+    }
+)
 
 NIKE_HOME_URL = "https://www.nike.com/login"
 SUBMIT_BUTTON_XPATH = "/html/body/div[2]/div/div/div[2]/div/div/div/div/div[2]/div/div/div[3]/div/div/div[6]/button"
@@ -137,12 +135,12 @@ def run(
                     click_add_new_address_button(driver=driver)
                 except Exception as e:
                     LOGGER.exception(
-                        "Failed to click Add New Address button: " + str(e))
+                        "Failed to click Add New Address button: " + str(e)
+                    )
                     six.reraise(Exception, e, sys.exc_info()[2])
 
                 try:
-                    input_address(driver=driver,
-                                  shipping_address=shipping_address)
+                    input_address(driver=driver, shipping_address=shipping_address)
                 except Exception as e:
                     LOGGER.exception("Failed to select address: " + str(e))
                     six.reraise(Exception, e, sys.exc_info()[2])
@@ -155,11 +153,11 @@ def run(
 
             if skip_select_shipping is False:
                 try:
-                    select_shipping_option(driver=driver,
-                                           shipping_option=shipping_option)
+                    select_shipping_option(
+                        driver=driver, shipping_option=shipping_option
+                    )
                 except Exception as e:
-                    LOGGER.exception("Failed to select shipping option: " +
-                                     str(e))
+                    LOGGER.exception("Failed to select shipping option: " + str(e))
                     six.reraise(Exception, e, sys.exc_info()[2])
 
                 try:
@@ -171,8 +169,7 @@ def run(
                     try:
                         click_save_button(driver=driver, check_disabled=False)
                     except Exception as e:
-                        LOGGER.exception("Failed to click save button: " +
-                                         str(e))
+                        LOGGER.exception("Failed to click save button: " + str(e))
                         six.reraise(Exception, e, sys.exc_info()[2])
                 except Exception as e:
                     LOGGER.exception("Failed to click save button: " + str(e))
@@ -185,8 +182,7 @@ def run(
                     try:
                         select_payment_option(driver=driver)
                     except Exception as e:
-                        LOGGER.exception("Failed to select payment option: " +
-                                         str(e))
+                        LOGGER.exception("Failed to select payment option: " + str(e))
                         six.reraise(Exception, e, sys.exc_info()[2])
 
                 if cvv:
@@ -210,8 +206,7 @@ def run(
                     xpath = SUBMIT_BUTTON_XPATH
                     click_submit_button(driver=driver, xpath_o=xpath)
                 except Exception as e:
-                    LOGGER.exception("Failed to click submit button: " +
-                                     str(e))
+                    LOGGER.exception("Failed to click submit button: " + str(e))
                     six.reraise(Exception, e, sys.exc_info()[2])
 
             LOGGER.info("Purchased shoe")
@@ -251,9 +246,9 @@ def login(driver, username, password):
         LOGGER.info("Page load timed out but continuing anyway")
 
     LOGGER.info("Waiting for login fields to become visible")
-    wait_until_visible(duration=10,
-                       driver=driver,
-                       xpath="//input[@name='emailAddress']")
+    wait_until_visible(
+        duration=10, driver=driver, xpath="//input[@name='emailAddress']"
+    )
 
     LOGGER.info("Entering username and password")
     email_input = driver.find_element_by_xpath("//input[@name='emailAddress']")
@@ -267,9 +262,9 @@ def login(driver, username, password):
     LOGGER.info("Logging in")
     driver.find_element_by_xpath("//input[@value='SIGN IN']").click()
 
-    wait_until_visible(driver=driver,
-                       xpath="//a[@data-path='myAccount:greeting']",
-                       duration=5)
+    wait_until_visible(
+        driver=driver, xpath="//a[@data-path='myAccount:greeting']", duration=5
+    )
 
     LOGGER.info("Successfully logged in")
 
@@ -284,16 +279,14 @@ def retry_login(driver, username, password):
             wait_until_visible(driver=driver, xpath=xpath, duration=5)
             driver.find_element_by_xpath(xpath).click()
 
-            password_input = driver.find_element_by_xpath(
-                "//input[@name='password']")
+            password_input = driver.find_element_by_xpath("//input[@name='password']")
             password_input.clear()
             password_input.send_keys(password)
 
             LOGGER.info("Logging in")
 
             try:
-                driver.find_element_by_xpath(
-                    "//input[@value='SIGN IN']").click()
+                driver.find_element_by_xpath("//input[@value='SIGN IN']").click()
             except Exception as e:
                 if num_retries_attempted < num_retries:
                     num_retries_attempted += 1
@@ -309,12 +302,10 @@ def retry_login(driver, username, password):
                 LOGGER.info("Too many login attempts. Please restart app.")
                 break
         except Exception as e:
-            LOGGER.exception("Error dialog did not load, proceed. Error: " +
-                             str(e))
+            LOGGER.exception("Error dialog did not load, proceed. Error: " + str(e))
             break
 
-    wait_until_visible(driver=driver,
-                       xpath="//a[@data-path='myAccount:greeting']")
+    wait_until_visible(driver=driver, xpath="//a[@data-path='myAccount:greeting']")
 
     LOGGER.info("Successfully logged in")
 
@@ -331,7 +322,8 @@ def select_shoe_size(driver, shoe_size, shoe_type, skip_size_selection):
 
         # Get first element found text
         size_text = driver.find_element_by_xpath(
-            "//li[@data-qa='size-available']/button").text
+            "//li[@data-qa='size-available']/button"
+        ).text
 
         special_shoe_type = False
         # Determine if size only displaying or size type + size
@@ -339,8 +331,7 @@ def select_shoe_size(driver, shoe_size, shoe_type, skip_size_selection):
 
             if shoe_type in ("Y", "C"):
                 shoe_size_type = shoe_size + shoe_type
-            elif shoe_size is None and shoe_type in ("XXS", "XS", "S", "M",
-                                                     "L", "XL"):
+            elif shoe_size is None and shoe_type in ("XXS", "XS", "S", "M", "L", "XL"):
                 shoe_size_type = shoe_type
                 special_shoe_type = True
             else:
@@ -350,20 +341,22 @@ def select_shoe_size(driver, shoe_size, shoe_type, skip_size_selection):
 
             if special_shoe_type:
                 driver.find_element_by_xpath(
-                    "//li[@data-qa='size-available']").find_element_by_xpath(
-                        "//button[text()='{}']".format(
-                            shoe_size_type)).click()
+                    "//li[@data-qa='size-available']"
+                ).find_element_by_xpath(
+                    "//button[text()='{}']".format(shoe_size_type)
+                ).click()
             else:
                 driver.find_element_by_xpath(
-                    "//li[@data-qa='size-available']").find_element_by_xpath(
-                        "//button[text()[contains(.,'" + shoe_size_type +
-                        "')]]").click()
+                    "//li[@data-qa='size-available']"
+                ).find_element_by_xpath(
+                    "//button[text()[contains(.,'" + shoe_size_type + "')]]"
+                ).click()
 
         else:
 
             driver.find_element_by_xpath(
-                "//li[@data-qa='size-available']").find_element_by_xpath(
-                    "//button[text()='{}']".format(shoe_size)).click()
+                "//li[@data-qa='size-available']"
+            ).find_element_by_xpath("//button[text()='{}']".format(shoe_size)).click()
 
 
 def click_buy_button(driver):
@@ -447,9 +440,7 @@ def input_address(driver, shipping_address):
 def select_shipping_option(driver, shipping_option):
     LOGGER.info("Selecting shipping")
     if shipping_option != "STANDARD":
-        element = wait_until_present(driver,
-                                     el_id=shipping_option,
-                                     duration=10)
+        element = wait_until_present(driver, el_id=shipping_option, duration=10)
         driver.execute_script("arguments[0].click();", element)
 
 
@@ -463,8 +454,9 @@ def input_cvv(driver, cvv):
 
     WebDriverWait(driver, 10, 0.01).until(
         EC.frame_to_be_available_and_switch_to_it(
-            driver.find_element_by_css_selector(
-                "iframe[title='creditCardIframeForm']")))
+            driver.find_element_by_css_selector("iframe[title='creditCardIframeForm']")
+        )
+    )
 
     idName = "cvNumber"
     wait_until_visible(driver, el_id=idName)
@@ -568,8 +560,8 @@ def poll_checkout_phase_one(driver):
             break
         except Exception as e:
             LOGGER.exception(
-                "Failed visibility check for Add New Address button: " +
-                str(e))
+                "Failed visibility check for Add New Address button: " + str(e)
+            )
 
         try:
             check_shipping(driver=driver)
@@ -577,8 +569,7 @@ def poll_checkout_phase_one(driver):
             skip_add_address = True
             break
         except Exception as e:
-            LOGGER.exception("Failed visibility check for Shipping options: " +
-                             str(e))
+            LOGGER.exception("Failed visibility check for Shipping options: " + str(e))
 
         try:
             check_payment(driver=driver)
@@ -598,8 +589,7 @@ def poll_checkout_phase_one(driver):
             skip_payment = True
             break
         except Exception as e:
-            LOGGER.exception("Failed visibility check for Submit Button: " +
-                             str(e))
+            LOGGER.exception("Failed visibility check for Submit Button: " + str(e))
 
         if checkout_num_retries_attempted < checkout_num_retries:
             checkout_num_retries_attempted += 1
@@ -626,8 +616,7 @@ def poll_checkout_phase_two(driver):
             LOGGER.info("Payment appeared!")
             break
         except Exception as e:
-            LOGGER.exception("Failed visibility check #2 for Payment: " +
-                             str(e))
+            LOGGER.exception("Failed visibility check #2 for Payment: " + str(e))
 
         try:
             xpath = SUBMIT_BUTTON_XPATH
@@ -636,8 +625,7 @@ def poll_checkout_phase_two(driver):
             skip_payment = True
             break
         except Exception as e:
-            LOGGER.exception("Failed visibility check #2 for Submit Button: " +
-                             str(e))
+            LOGGER.exception("Failed visibility check #2 for Submit Button: " + str(e))
 
         if checkout_num_retries_attempted < checkout_num_retries:
             checkout_num_retries_attempted += 1
@@ -651,55 +639,55 @@ def poll_checkout_phase_two(driver):
         return skip_payment
 
 
-def wait_until_clickable(driver,
-                         xpath=None,
-                         class_name=None,
-                         el_id=None,
-                         duration=10000,
-                         frequency=0.01):
+def wait_until_clickable(
+    driver, xpath=None, class_name=None, el_id=None, duration=10000, frequency=0.01
+):
     if xpath:
         WebDriverWait(driver, duration, frequency).until(
-            EC.element_to_be_clickable((By.XPATH, xpath)))
+            EC.element_to_be_clickable((By.XPATH, xpath))
+        )
     elif class_name:
         WebDriverWait(driver, duration, frequency).until(
-            EC.element_to_be_clickable((By.CLASS_NAME, class_name)))
+            EC.element_to_be_clickable((By.CLASS_NAME, class_name))
+        )
     elif el_id:
         WebDriverWait(driver, duration, frequency).until(
-            EC.element_to_be_clickable((By.ID, el_id)))
+            EC.element_to_be_clickable((By.ID, el_id))
+        )
 
 
-def wait_until_visible(driver,
-                       xpath=None,
-                       class_name=None,
-                       el_id=None,
-                       duration=10000,
-                       frequency=0.01):
+def wait_until_visible(
+    driver, xpath=None, class_name=None, el_id=None, duration=10000, frequency=0.01
+):
     if xpath:
         WebDriverWait(driver, duration, frequency).until(
-            EC.visibility_of_element_located((By.XPATH, xpath)))
+            EC.visibility_of_element_located((By.XPATH, xpath))
+        )
     elif class_name:
         WebDriverWait(driver, duration, frequency).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, class_name)))
+            EC.visibility_of_element_located((By.CLASS_NAME, class_name))
+        )
     elif el_id:
         WebDriverWait(driver, duration, frequency).until(
-            EC.visibility_of_element_located((By.ID, el_id)))
+            EC.visibility_of_element_located((By.ID, el_id))
+        )
 
 
-def wait_until_present(driver,
-                       xpath=None,
-                       class_name=None,
-                       el_id=None,
-                       duration=10000,
-                       frequency=0.01):
+def wait_until_present(
+    driver, xpath=None, class_name=None, el_id=None, duration=10000, frequency=0.01
+):
     if xpath:
         return WebDriverWait(driver, duration, frequency).until(
-            EC.presence_of_element_located((By.XPATH, xpath)))
+            EC.presence_of_element_located((By.XPATH, xpath))
+        )
     elif class_name:
         return WebDriverWait(driver, duration, frequency).until(
-            EC.presence_of_element_located((By.CLASS_NAME, class_name)))
+            EC.presence_of_element_located((By.CLASS_NAME, class_name))
+        )
     elif el_id:
         return WebDriverWait(driver, duration, frequency).until(
-            EC.presence_of_element_located((By.ID, el_id)))
+            EC.presence_of_element_located((By.ID, el_id))
+        )
 
 
 if __name__ == "__main__":
@@ -713,9 +701,9 @@ if __name__ == "__main__":
     parser.add_argument("--screenshot-path", default=None)
     parser.add_argument("--html-path", default=None)
     parser.add_argument("--page-load-timeout", type=int, default=2)
-    parser.add_argument("--driver-type",
-                        default="firefox",
-                        choices=("firefox", "chrome"))
+    parser.add_argument(
+        "--driver-type", default="firefox", choices=("firefox", "chrome")
+    )
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--select-payment", action="store_true")
     parser.add_argument("--purchase", action="store_true")
@@ -775,8 +763,9 @@ if __name__ == "__main__":
             raise Exception(
                 "Drivers for installed operating system not found. Try specifying the path to the drivers with the --webdriver-path option"
             )
-        driver = webdriver.Chrome(executable_path=executable_path,
-                                  chrome_options=options)
+        driver = webdriver.Chrome(
+            executable_path=executable_path, chrome_options=options
+        )
         driver.set_page_load_timeout(time_to_wait=15)
 
     else:
@@ -789,8 +778,10 @@ if __name__ == "__main__":
 
     if shoe_size is None and shoe_type in ("Y", "C", "W"):
         raise Exception(
-            "Shoe size parameter must be passed in with your shoe type " +
-            shoe_type + ".")
+            "Shoe size parameter must be passed in with your shoe type "
+            + shoe_type
+            + "."
+        )
 
     if args.shipping_address:
         shipping_address = json.loads(args.shipping_address)
